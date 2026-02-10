@@ -1,0 +1,49 @@
+{
+    "name": "mcp-pocketbase",
+    "version": "1.0.0",
+    "description": "",
+    "type": "module",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"no test\"",
+        "prepare": "husky",
+        "commit": "cz",
+        "commitlint": "commitlint --edit",
+        "format": "prettier --write .",
+        "build": "tsc",
+        "bundle": "bun build ./src/index.ts --compile --outfile mcp-pb",
+        "debug": "npx @modelcontextprotocol/inspector node build/index.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "packageManager": "pnpm@10.23.0",
+    "devDependencies": {
+        "@commitlint/cli": "^20.3.1",
+        "@commitlint/config-conventional": "^20.3.1",
+        "@modelcontextprotocol/inspector": "^0.18.0",
+        "@types/debug": "^4.1.12",
+        "@types/node": "^25.0.8",
+        "commitizen": "^4.3.1",
+        "cz-conventional-changelog": "^3.3.0",
+        "husky": "^9.1.7",
+        "lint-staged": "^15.5.2",
+        "prettier": "~3.5.3"
+    },
+    "config": {
+        "commitizen": {
+            "path": "cz-conventional-changelog"
+        }
+    },
+    "lint-staged": {
+        "*.{js,jsx,ts,tsx,vue}": "prettier --write",
+        "*.{json,md,yml,yaml}": "prettier --write"
+    },
+    "dependencies": {
+        "@modelcontextprotocol/sdk": "^1.25.2",
+        "debug": "^4.4.3",
+        "dotenv": "^17.2.3",
+        "pocketbase": "^0.26.6",
+        "zod": "^4.3.5"
+    }
+}

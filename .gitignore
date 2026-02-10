@@ -1,0 +1,5 @@
+node_modules
+build
+mcp-pb
+
+.DS_Store

@@ -1,0 +1,20 @@
+{
+    "manifest_version": "0.2",
+    "name": "mcp-pocketbase",
+    "version": "1.0.0",
+    "description": "Pocketbase's mcp server",
+    "author": {
+        "name": "xinyi"
+    },
+    "server": {
+        "type": "node",
+        "entry_point": "build/index.js",
+        "mcp_config": {
+            "command": "node",
+            "args": ["${__dirname}/build/index.js"],
+            "env": {}
+        }
+    },
+    "keywords": ["pocketbase"],
+    "license": "ISC"
+}
