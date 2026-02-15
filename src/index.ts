@@ -260,6 +260,170 @@ server.tool(
     }
 );
 
+// 创建新的 Collection
+server.tool(
+    'create_collection',
+    'Create a new PocketBase collection. You can specify the name, type (base, auth, view), and initial fields. Requires admin authentication.',
+    {
+        name: z.string().describe('Collection 名称'),
+        type: z.enum(['base', 'auth', 'view']).optional().default('base').describe('Collection 类型'),
+        fields: z.array(z.any()).optional().describe('初始字段列表'),
+        listRule: z.string().optional().describe('List 权限规则'),
+        viewRule: z.string().optional().describe('View 权限规则'),
+        createRule: z.string().optional().describe('Create 权限规则'),
+        updateRule: z.string().optional().describe('Update 权限规则'),
+        deleteRule: z.string().optional().describe('Delete 权限规则'),
+        collectionOptions: z.any().optional().describe('Collection 选项 (如 viewQuery)')
+    },
+    async ({name, type, fields, listRule, viewRule, createRule, updateRule, deleteRule, collectionOptions}) => {
+        try {
+            const pb = await getPocketBase();
+
+            if (!isAdminAuthenticated()) {
+                return {
+                    content: [
+                        {
+                            type: 'text',
+                            text: JSON.stringify(
+                                {
+                                    error: '未认证',
+                                    message: '创建 Collection 需要管理员权限。'
+                                },
+                                null,
+                                2
+                            )
+                        }
+                    ],
+                    isError: true
+                };
+            }
+
+            const data = {
+                name,
+                type,
+                fields: fields || [],
+                listRule: listRule ?? null,
+                viewRule: viewRule ?? null,
+                createRule: createRule ?? null,
+                updateRule: updateRule ?? null,
+                deleteRule: deleteRule ?? null,
+                ...collectionOptions
+            };
+
+            const result = await pb.collections.create(data as any);
+
+            return {
+                content: [
+                    {
+                        type: 'text',
+                        text: JSON.stringify(
+                            {
+                                success: true,
+                                message: `Collection "${name}" 创建成功。`,
+                                collection: result
+                            },
+                            null,
+                            2
+                        )
+                    }
+                ]
+            };
+        } catch (error) {
+            debug('create_collection error:', error);
+            return {
+                content: [
+                    {
+                        type: 'text',
+                        text: JSON.stringify(
+                            {
+                                error: '创建 Collection 失败',
+                                message: error instanceof Error ? error.message : String(error)
+                            },
+                            null,
+                            2
+                        )
+                    }
+                ],
+                isError: true
+            };
+        }
+    }
+);
+
+// 更新 Collection 字段
+server.tool(
+    'update_collection_fields',
+    'Update or add fields to an existing PocketBase collection. This tool replaces the entire fields array, so you should include all fields you want to keep. Requires admin authentication.',
+    {
+        collectionIdOrName: z.string().describe('Collection 的 ID 或名称'),
+        fields: z.array(z.any()).describe('完整的字段列表')
+    },
+    async ({collectionIdOrName, fields}) => {
+        try {
+            const pb = await getPocketBase();
+
+            if (!isAdminAuthenticated()) {
+                return {
+                    content: [
+                        {
+                            type: 'text',
+                            text: JSON.stringify(
+                                {
+                                    error: '未认证',
+                                    message: '修改 Collection 需要管理员权限。'
+                                },
+                                null,
+                                2
+                            )
+                        }
+                    ],
+                    isError: true
+                };
+            }
+
+            const collection = await pb.collections.getOne(collectionIdOrName);
+            const result = await pb.collections.update(collection.id, {
+                fields: fields
+            } as any);
+
+            return {
+                content: [
+                    {
+                        type: 'text',
+                        text: JSON.stringify(
+                            {
+                                success: true,
+                                message: `Collection "${collection.name}" 字段更新成功。`,
+                                collection: result
+                            },
+                            null,
+                            2
+                        )
+                    }
+                ]
+            };
+        } catch (error) {
+            debug('update_collection_fields error:', error);
+            return {
+                content: [
+                    {
+                        type: 'text',
+                        text: JSON.stringify(
+                            {
+                                error: '更新 Collection 字段失败',
+                                message: error instanceof Error ? error.message : String(error)
+                            },
+                            null,
+                            2
+                        )
+                    }
+                ],
+                isError: true
+            };
+        }
+    }
+);
+
 // 统一设置 Collection API 权限要求
 server.tool(
     'set_collection_permissions',
